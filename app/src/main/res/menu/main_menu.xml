@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/add_event_group"
+        android:title="@string/add_event"
+        android:icon="@mipmap/ic_content_add"
+        app:showAsAction="always">
+        <menu>
+            <item android:id="@+id/add_event"
+                android:title="@string/add_event"
+                android:icon="@mipmap/add_event"/>
+
+            <item android:id="@+id/edit_event"
+                android:title="@string/edit_event"
+                android:icon="@mipmap/edit_event"
+                android:visible="false"/>
+        </menu>
+    </item>
+
+    <item android:id="@+id/settings"
+        android:title="@string/settings"
+        app:showAsAction="never"/>
+</menu>

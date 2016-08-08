@@ -1,0 +1,8 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "com.calendaridex.database.SchemaGenerator"
+
+dependencies {
+	compile files('lib/freemarker-2.3.19.jar', 'lib/greendao-generator-1.3.0.jar')
+}
