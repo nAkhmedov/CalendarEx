@@ -7,12 +7,12 @@ import android.text.style.LineBackgroundSpan;
 /**
  * Created by Navruz on 01.08.2016.
  */
-public class AdminEventDotSpanSpan implements LineBackgroundSpan {
+public class AdminEventDotSpan implements LineBackgroundSpan {
 
     private float radius;
     private int color;
 
-    public AdminEventDotSpanSpan(int radius, int color) {
+    public AdminEventDotSpan(int radius, int color) {
         this.radius = radius;
         this.color = color;
     }
@@ -25,7 +25,7 @@ public class AdminEventDotSpanSpan implements LineBackgroundSpan {
             paint.setColor(color);
         }
 
-        canvas.drawCircle((left + right) / 2 - 15, bottom + radius, radius, paint);
+        canvas.drawCircle((left + right) / 3, bottom + radius, radius, paint);
         paint.setColor(oldColor);
     }
 }

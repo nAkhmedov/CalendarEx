@@ -26,6 +26,7 @@ import com.calendaridex.constants.ContextConstants;
 import com.calendaridex.constants.ExtraNames;
 import com.calendaridex.database.Event;
 import com.calendaridex.receiver.AlarmReceiver;
+import com.calendaridex.util.AndroidUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -153,17 +154,11 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                                 return;
                             }
                             event.setTitle(newTitle);
-                            if (alarmTime != null && !alarmTime.equals(event.getAlarmTime())) {
+                            if (alarmTime != null) {
                                 event.setAlarmTime(alarmTime);
-                                Calendar alarmCalendar = Calendar.getInstance();
-                                alarmCalendar.setTime(event.getStartDate());
-                                alarmCalendar.set(Calendar.MILLISECOND, 0);
-                                alarmCalendar.set(Calendar.SECOND, 0);
-                                String[] hours = alarmTime.split(":");
-                                alarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0]));
-                                alarmCalendar.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
-                                addAlarm(newTitle, alarmCalendar);
+                                addAlarm(event);
                             } else {
+                                dismissAlarm(event);
                                 event.setAlarmTime(null);
                             }
                             ApplicationLoader.getApplication(mActivity)
@@ -206,6 +201,8 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                                 checkBoxView.setChecked(false);
                             }
                         });
+                    } else {
+                        selectedTime[0] = null;
                     }
                 }
             });
@@ -222,12 +219,20 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
         }
     }
 
-    private void addAlarm(String eventData, Calendar alarmCalendar) {
+    private void addAlarm(Event userEvent) {
         Intent intent = new Intent(mActivity, AlarmReceiver.class);
-        intent.putExtra(ExtraNames.ALARM_MESSAGE, eventData);
-        // In reality, you would want to have a static variable for the request code instead of 192837
-        PendingIntent sender = PendingIntent.getBroadcast(mActivity, 192837, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), sender);
+        Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
+        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+    }
+
+    private void dismissAlarm(Event userEvent) {
+        Intent intent = new Intent(mActivity, AlarmReceiver.class);
+        intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager am = (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
+        am.cancel(pendingIntent);
     }
 }

@@ -47,6 +47,7 @@ import com.calendaridex.util.AndroidUtil;
 import com.calendaridex.util.CurrentDayDecorator;
 import com.calendaridex.util.DispatchQueue;
 import com.calendaridex.util.HolidayEventDecorator;
+import com.calendaridex.util.UserAlarmEventDecorator;
 import com.calendaridex.util.UserEventDecorator;
 import com.calendaridex.util.WeekendsDecorator;
 import com.calendaridex.widget.CalendarWidget;
@@ -430,7 +431,9 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         List<Event> userEvent = new ArrayList<>(1);
         userEvent.add(event);
         UserEventDecorator userDec = new UserEventDecorator(this, userEvent);
+        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(this, userEvent);
         calendarView.addDecorator(userDec);
+        calendarView.addDecorator(alarmEventDecorator);
     }
 
     private void renderUserEvents() {
@@ -441,7 +444,9 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 .where(EventDao.Properties.AdminEvent.eq(false))
                 .list();
         UserEventDecorator userDec = new UserEventDecorator(this, userEvents);
+        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(this, userEvents);
         calendarView.addDecorator(userDec);
+        calendarView.addDecorator(alarmEventDecorator);
         if (editEventMenu != null) {
             editEventMenu.setVisible(!userEvents.isEmpty());
         }
@@ -520,35 +525,30 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         userEvent.setEndDate(dateClicked.getDate());
         userEvent.setAdminEvent(false);
         userEvent.setTitle(eventData);
-        if (alarmTime != null) {
-            userEvent.setAlarmTime(alarmTime);
-            Calendar alarmCalendar = Calendar.getInstance();
-            alarmCalendar.setTime(dateClicked.getDate());
-            alarmCalendar.set(Calendar.MILLISECOND, 0);
-            alarmCalendar.set(Calendar.SECOND, 0);
-            String[] hours = alarmTime.split(":");
-            alarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0]));
-            alarmCalendar.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
-            addAlarm(eventData, alarmCalendar);
-        }
-        allEvents.add(userEvent);
+        userEvent.setAlarmTime(alarmTime);
         ApplicationLoader.getApplication(MainActivity.this)
                 .getDaoSession()
                 .getEventDao()
                 .insert(userEvent);
+        addAlarm(userEvent);
+        allEvents.add(userEvent);
         mAdapter.swapData(allEvents);
         renderUserEvent(userEvent);
         editEventMenu.setVisible(true);
         updateAllWidgets();
     }
 
-    private void addAlarm(String eventData, Calendar alarmCalendar) {
+    private void addAlarm(Event userEvent) {
+        if (userEvent.getAlarmTime() == null) {
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-        intent.putExtra(ExtraNames.ALARM_MESSAGE, eventData);
-        // In reality, you would want to have a static variable for the request code instead of 192837
-        PendingIntent sender = PendingIntent.getBroadcast(this, 192837, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
+        // In reality, you would want to have a static variable for the request code instead of eventId
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), sender);
+        Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
+        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
     }
 
     @Override

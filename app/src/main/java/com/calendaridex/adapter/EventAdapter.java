@@ -64,7 +64,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
                 }
             }
         } else {
-            holder.eventView.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
+            if (itemValue.getAlarmTime() == null) {
+                holder.eventView.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
+            } else {
+                holder.eventView.setTextColor(ContextCompat.getColor(context, R.color.yellow));
+            }
             holder.dateView.setText(dateFormat.format(itemValue.getStartDate()) + ":");
             holder.eventView.setText(itemValue.getTitle());
         }

@@ -2,6 +2,8 @@ package com.calendaridex.util;
 
 import android.util.Pair;
 
+import com.calendaridex.database.Event;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -72,5 +74,17 @@ public class AndroidUtil {
         endCalendar.setTime(date);
         endCalendar.add(Calendar.DAY_OF_MONTH, 0);
         return new Pair<>(startCalendar.getTime(), endCalendar.getTime());
+    }
+
+    public static Calendar getAlarmTime(Event userEvent) {
+        Calendar alarmCalendar = Calendar.getInstance();
+        alarmCalendar.setTime(userEvent.getStartDate());
+        alarmCalendar.set(Calendar.MILLISECOND, 0);
+        alarmCalendar.set(Calendar.SECOND, 0);
+        String[] hours = userEvent.getAlarmTime().split(":");
+        alarmCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hours[0]));
+        alarmCalendar.set(Calendar.MINUTE, Integer.parseInt(hours[1]));
+
+        return alarmCalendar;
     }
 }

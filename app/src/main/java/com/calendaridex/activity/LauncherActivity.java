@@ -23,8 +23,13 @@ public class LauncherActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                imageView.setImageBitmap(ImageUtil.decodeSampledBitmapFromResource(
-                        getResources(), R.drawable.calendar_icon, 100, 100));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(ImageUtil.decodeSampledBitmapFromResource(
+                                getResources(), R.drawable.calendar_icon, 100, 100));
+                    }
+                });
             }
         }).start();
         new Handler().postDelayed(new Runnable(){

@@ -2,6 +2,7 @@ package com.calendaridex.util;
 
 import android.support.v4.content.ContextCompat;
 
+import com.calendaridex.R;
 import com.calendaridex.activity.MainActivity;
 import com.calendaridex.database.Event;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
@@ -11,16 +12,16 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import java.util.List;
 
 /**
- * Created by Navruz on 16.06.2016.
+ * Created by Navruz on 08.08.2016.
  */
-public class UserEventDecorator implements DayViewDecorator {
+public class UserAlarmEventDecorator implements DayViewDecorator {
 
     private int color;
 //    private HashSet<CalendarDay> eventDates;
     private List<Event> userEvents;
 
-    public UserEventDecorator(MainActivity context, List<Event> events) {
-        this.color = ContextCompat.getColor(context, android.R.color.holo_green_dark);
+    public UserAlarmEventDecorator(MainActivity context, List<Event> events) {
+        this.color = ContextCompat.getColor(context, R.color.yellow);
         this.userEvents = events;
     }
 
@@ -30,7 +31,7 @@ public class UserEventDecorator implements DayViewDecorator {
         for (Event event: userEvents) {
             if(day.isInRange(CalendarDay.from(event.getStartDate()),
                     CalendarDay.from(event.getStartDate()))) {
-                if (event.getAlarmTime() == null) {
+                if (event.getAlarmTime() != null) {
                     return true;
                 }
             }
@@ -40,6 +41,6 @@ public class UserEventDecorator implements DayViewDecorator {
 
     @Override
     public void decorate(DayViewFacade view) {
-        view.addSpan(new UserEventDotSpan(10, color));
+        view.addSpan(new UserAlarmEventDotSpan(10, color));
     }
 }

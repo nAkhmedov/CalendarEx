@@ -1,7 +1,6 @@
 package com.calendaridex.util;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 
@@ -10,7 +9,6 @@ import com.calendaridex.database.Event;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
-import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
 import java.util.List;
 
@@ -48,6 +46,6 @@ public class HolidayEventDecorator implements DayViewDecorator {
     @Override
     public void decorate(DayViewFacade view) {
 //        view.setSelectionDrawable(drawable);
-        view.addSpan(new AdminEventDotSpanSpan(10, R.color.colorPrimaryDark));
+        view.addSpan(new AdminEventDotSpan(10, R.color.colorPrimaryDark));
     }
 }
