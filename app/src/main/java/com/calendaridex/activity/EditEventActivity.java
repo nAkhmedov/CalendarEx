@@ -41,8 +41,8 @@ public class EditEventActivity extends BaseCEActivity {
     }
 
     @Override
-    public void onBackPressed() {
+    public void finish() {
         setResult(RESULT_OK);
-        super.onBackPressed();
+        super.finish();
     }
 }

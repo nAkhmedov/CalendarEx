@@ -31,8 +31,10 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.calendaridex.ApplicationLoader;
 import com.calendaridex.R;
@@ -105,7 +107,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
     private CalendarDay selectedDate;
     private CustomHTTPService http;
 
-    private List<Event> allEvents;
+    private List<Event> allEvents = new ArrayList<>(1000);
     private RelativeLayout adContainer;
 
     /*For AdMob*/
@@ -225,8 +227,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 if (selectedDate != null) {
                     showAddEventDialog(selectedDate);
                 } else {
-                    Snackbar.make(contentView, getString(R.string.select_date), Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.select_date), Toast.LENGTH_LONG).show();
                 }
                 break;
             }
@@ -237,7 +238,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             }
             case R.id.settings: {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivityForResult(intent, EDIT_EVENT_CODE);
+                startActivity(intent);
                 break;
             }
         }
@@ -399,7 +400,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             if (eventDao.queryBuilder().where(
                     EventDao.Properties.StartDate.eq(event.getStartDate()),
                     EventDao.Properties.Title.eq(event.getTitle()))
-                        .buildCount().count() == 0) {
+                    .buildCount().count() == 0) {
                 eventDao.insert(event);
             }
 
@@ -411,40 +412,40 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
     }
 
     private void renderAdminEvents() {
-        QueryBuilder queryBuilder = ApplicationLoader.getApplication(this)
+        QueryBuilder queryBuilder = ApplicationLoader.getApplication(MainActivity.this)
                 .getDaoSession()
                 .getEventDao()
                 .queryBuilder();
         List<Event> adminEvents = queryBuilder
                 .where(EventDao.Properties.AdminEvent.eq(true))
                 .list();
-        calendarView.addDecorators(new HolidayEventDecorator(this, adminEvents));
+        calendarView.addDecorators(new HolidayEventDecorator(MainActivity.this, adminEvents));
         boolean holidayExist = queryBuilder
                 .where(EventDao.Properties.AdminEvent.eq(true),
                         EventDao.Properties.StartDate.eq(AndroidUtil.getCurrentDate()))
                 .buildCount().count() != 0;
 
-        calendarView.addDecorators(new CurrentDayDecorator(this, holidayExist));
+        calendarView.addDecorators(new CurrentDayDecorator(MainActivity.this, holidayExist));
     }
 
-    private void renderUserEvent(Event event) {
+    private void renderUserEvent(final Event event) {
         List<Event> userEvent = new ArrayList<>(1);
         userEvent.add(event);
-        UserEventDecorator userDec = new UserEventDecorator(this, userEvent);
-        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(this, userEvent);
+        UserEventDecorator userDec = new UserEventDecorator(MainActivity.this, userEvent);
+        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(MainActivity.this, userEvent);
         calendarView.addDecorator(userDec);
         calendarView.addDecorator(alarmEventDecorator);
     }
 
     private void renderUserEvents() {
-        List<Event> userEvents = ApplicationLoader.getApplication(this)
+        List<Event> userEvents = ApplicationLoader.getApplication(MainActivity.this)
                 .getDaoSession()
                 .getEventDao()
                 .queryBuilder()
                 .where(EventDao.Properties.AdminEvent.eq(false))
                 .list();
-        UserEventDecorator userDec = new UserEventDecorator(this, userEvents);
-        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(this, userEvents);
+        UserEventDecorator userDec = new UserEventDecorator(MainActivity.this, userEvents);
+        UserAlarmEventDecorator alarmEventDecorator = new UserAlarmEventDecorator(MainActivity.this, userEvents);
         calendarView.addDecorator(userDec);
         calendarView.addDecorator(alarmEventDecorator);
         if (editEventMenu != null) {
@@ -456,6 +457,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         View customView = getLayoutInflater().inflate(R.layout.add_event_dialog, null, false);
         final EditText input = (EditText) customView.findViewById(R.id.event_name);
         final CheckBox checkBoxView = (CheckBox) customView.findViewById(R.id.set_alarm);
+        final Spinner spinner = (Spinner) customView.findViewById(R.id.spinner);
         final String[] selectedTime = {""};
 
         final AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
@@ -475,9 +477,9 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                     public void onClick(View v) {
                         alertDialog.dismiss();
                         if (selectedTime[0].isEmpty()) {
-                            addUserEvent(dateClicked, input.getText().toString(), null);
+                            addUserEvent(dateClicked, input.getText().toString(), null, spinner.getSelectedItemPosition());
                         } else {
-                            addUserEvent(dateClicked, input.getText().toString(), selectedTime[0]);
+                            addUserEvent(dateClicked, input.getText().toString(), selectedTime[0], spinner.getSelectedItemPosition());
 
                         }
                     }
@@ -519,26 +521,37 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         });
     }
 
-    private void addUserEvent(CalendarDay dateClicked, String eventData, String alarmTime) {
-        Event userEvent = new Event();
-        userEvent.setStartDate(dateClicked.getDate());
-        userEvent.setEndDate(dateClicked.getDate());
-        userEvent.setAdminEvent(false);
-        userEvent.setTitle(eventData);
-        userEvent.setAlarmTime(alarmTime);
-        ApplicationLoader.getApplication(MainActivity.this)
-                .getDaoSession()
-                .getEventDao()
-                .insert(userEvent);
-        addAlarm(userEvent);
-        allEvents.add(userEvent);
-        mAdapter.swapData(allEvents);
-        renderUserEvent(userEvent);
-        editEventMenu.setVisible(true);
-        updateAllWidgets();
+    private void addUserEvent(final CalendarDay dateClicked, final String eventData,
+                              final String alarmTime, final int repeatPosition) {
+        globalQueue.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                final Event userEvent = new Event();
+                userEvent.setStartDate(dateClicked.getDate());
+                userEvent.setEndDate(dateClicked.getDate());
+                userEvent.setAdminEvent(false);
+                userEvent.setTitle(eventData);
+                userEvent.setAlarmTime(alarmTime);
+                ApplicationLoader.getApplication(MainActivity.this)
+                        .getDaoSession()
+                        .getEventDao()
+                        .insert(userEvent);
+                addAlarm(userEvent, repeatPosition);
+                allEvents.add(userEvent);
+                editEventMenu.setVisible(true);
+                updateAllWidgets();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.swapData(allEvents);
+                        renderUserEvent(userEvent);
+                    }
+                });
+            }
+        });
     }
 
-    private void addAlarm(Event userEvent) {
+    private void addAlarm(Event userEvent, int repeatPosition) {
         if (userEvent.getAlarmTime() == null) {
             return;
         }
@@ -548,7 +561,25 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
-        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+        //0-doesn't repeat, 1-every day, 2-every month, 3-every year
+        switch (repeatPosition) {
+            case 0: {
+                am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+                break;
+            }
+            case 1: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                break;
+            }
+            case 2: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                break;
+            }
+            case 3: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                break;
+            }
+        }
     }
 
     @Override

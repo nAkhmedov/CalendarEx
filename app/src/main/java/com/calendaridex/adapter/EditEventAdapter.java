@@ -16,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -128,6 +129,8 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
             View customView = mActivity.getLayoutInflater().inflate(R.layout.add_event_dialog, null, false);
             final EditText input = (EditText) customView.findViewById(R.id.event_name);
             final CheckBox checkBoxView = (CheckBox) customView.findViewById(R.id.set_alarm);
+            final Spinner spinner = (Spinner) customView.findViewById(R.id.spinner);
+
             checkBoxView.setChecked(event.getAlarmTime() != null);
             input.setText(event.getTitle());
             final AlertDialog alertDialog = new AlertDialog.Builder(mActivity)
@@ -156,7 +159,7 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                             event.setTitle(newTitle);
                             if (alarmTime != null) {
                                 event.setAlarmTime(alarmTime);
-                                addAlarm(event);
+                                addAlarm(event, spinner.getSelectedItemPosition());
                             } else {
                                 dismissAlarm(event);
                                 event.setAlarmTime(null);
@@ -215,20 +218,42 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                     .getEventDao()
                     .delete(event);
             eventList.remove(adapterPosition);
+            dismissAlarm(event);
             notifyItemRemoved(adapterPosition);
         }
     }
 
-    private void addAlarm(Event userEvent) {
+    private void addAlarm(Event userEvent, int repeatPosition) {
         Intent intent = new Intent(mActivity, AlarmReceiver.class);
         intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
         Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
-        am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+        //0-doesn't repeat, 1-every day, 2-every month, 3-every year
+        switch (repeatPosition) {
+            case 0: {
+                am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
+                break;
+            }
+            case 1: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                break;
+            }
+            case 2: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                break;
+            }
+            case 3: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                break;
+            }
+        }
     }
 
     private void dismissAlarm(Event userEvent) {
+        if (userEvent.getAlarmTime() == null) {
+            return;
+        }
         Intent intent = new Intent(mActivity, AlarmReceiver.class);
         intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_CANCEL_CURRENT);

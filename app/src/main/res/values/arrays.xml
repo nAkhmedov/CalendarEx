@@ -7,4 +7,11 @@
     <string-array name="alarm_sound_values">
         <item>anthem_id</item>
     </string-array>
+
+    <string-array name="alarm_repeat_arrays">
+        <item>Does not repeat</item>
+        <item>Every day</item>
+        <item>Every month</item>
+        <item>Every year</item>
+    </string-array>
 </resources>

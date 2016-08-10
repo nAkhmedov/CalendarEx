@@ -48,13 +48,12 @@ public class AndroidUtil {
     }
 
     public static boolean isMoreThanSelectedDays(Date thatDay, long givenDay) {
-//        Calendar thatDayCalendar = Calendar.getInstance();
-//        thatDayCalendar.setTime(thatDay);
-//        Calendar today = Calendar.getInstance();
-//        long diff = today.getTimeInMillis() - thatDayCalendar.getTimeInMillis(); //result in millis
-//        long days = diff / (24 * 60 * 60 * 1000);
-//        return days >= givenDay;
-        return true;
+        Calendar thatDayCalendar = Calendar.getInstance();
+        thatDayCalendar.setTime(thatDay);
+        Calendar today = Calendar.getInstance();
+        long diff = today.getTimeInMillis() - thatDayCalendar.getTimeInMillis(); //result in millis
+        long days = diff / (24 * 60 * 60 * 1000);
+        return days >= givenDay;
     }
 
     public static Date getCurrentDate() {

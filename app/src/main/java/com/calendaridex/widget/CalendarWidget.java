@@ -3,7 +3,6 @@ package com.calendaridex.widget;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +14,7 @@ import com.calendaridex.R;
 import com.calendaridex.activity.MainActivity;
 import com.calendaridex.constants.ContextConstants;
 import com.calendaridex.service.WidgetService;
+import com.calendaridex.service.WidgetUpdateDateService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,11 +28,10 @@ public class CalendarWidget extends AppWidgetProvider {
 
     private SimpleDateFormat monthDateFormat = new SimpleDateFormat("d MMMM", ContextConstants.currentCountry);
     private static int uniqueIndex = 0;
-
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
-
+        context.startService(new Intent(context, WidgetUpdateDateService.class));
         Log.i(TAG, "onEnabled method called");
 
     }
@@ -41,7 +40,7 @@ public class CalendarWidget extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         Log.i(TAG, "onDeleted method called");
         super.onDeleted(context, appWidgetIds);
-//        context.stopService(new Intent(context, WidgetUpdateService.class));
+        context.stopService(new Intent(context, WidgetUpdateDateService.class));
     }
 
     @Override
@@ -59,13 +58,7 @@ public class CalendarWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.i(TAG, "onReceive method called");
-        if (intent.getAction().equals(Intent.ACTION_TIME_CHANGED) ||
-                intent.getAction().equals(Intent.ACTION_DATE_CHANGED)) {
-            Log.i(TAG, "onReceive ACTION_DATE_CHANGED method called");
-            updateAllWidgets(context);
-        } else {
-            super.onReceive(context, intent);
-        }
+        super.onReceive(context, intent);
 
     }
 
@@ -115,15 +108,5 @@ public class CalendarWidget extends AppWidgetProvider {
             appWidgetManager.updateAppWidget(appWidgetId, widget);
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-    }
-
-    private void updateAllWidgets(Context context) {
-        AppWidgetManager man = AppWidgetManager.getInstance(context);
-        int[] ids = man.getAppWidgetIds(
-                new ComponentName(context, CalendarWidget.class));
-        Intent intent = new Intent(context, CalendarWidget.class);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
-        context.sendBroadcast(intent);
     }
 }

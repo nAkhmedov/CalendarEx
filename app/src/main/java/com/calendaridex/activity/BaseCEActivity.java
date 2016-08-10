@@ -37,19 +37,6 @@ public abstract class BaseCEActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        IntentFilter intentFilter = new IntentFilter(ActionNames.ACTION_DISMISS);
-        registerReceiver(dismissAlarmReceiver, intentFilter);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unregisterReceiver(dismissAlarmReceiver);
-    }
-
     public void showDialog() {
         runOnUiThread(new Runnable() {
             @Override
@@ -90,14 +77,4 @@ public abstract class BaseCEActivity extends AppCompatActivity {
         final InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
-
-    private BroadcastReceiver dismissAlarmReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (intent.getAction().equals(ActionNames.ACTION_DISMISS)) {
-                mNotificationManager.cancel(NotificationConstants.ALARM_SERVICE);
-            }
-        }
-    };
 }
