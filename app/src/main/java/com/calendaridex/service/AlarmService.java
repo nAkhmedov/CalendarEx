@@ -77,13 +77,14 @@ public class AlarmService extends Service {
             notificationBuilder.setContentIntent(pendingIntent);
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);;
 //            boolean isSoundEnabled = sharedPrefs.getBoolean("sound_control", true);
-            String soundValue = sharedPrefs.getString("alarm_sound", R.raw.anthem_id + "");
-            if (!soundValue.startsWith("android.resource://")) {
+            String defaultValue = R.raw.anthem_id + "";
+            String soundValue = sharedPrefs.getString("alarm_sound", defaultValue);
+            if (soundValue.equals(defaultValue)) {
                 soundValue = "android.resource://" + context.getPackageName() + "/" + soundValue;
             }
 
             Uri soundPath = Uri.parse(soundValue);
-            notificationBuilder.setSound(soundPath, RingtoneManager.TYPE_ALARM);
+            notificationBuilder.setSound(soundPath);
 
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             manager.notify(NotificationConstants.ALARM_SERVICE, notificationBuilder.build());

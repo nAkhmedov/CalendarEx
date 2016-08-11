@@ -67,7 +67,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             if (itemValue.getAlarmTime() == null) {
                 holder.eventView.setTextColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
             } else {
-                holder.eventView.setTextColor(ContextCompat.getColor(context, R.color.yellow));
+                holder.eventView.setTextColor(ContextCompat.getColor(context, R.color.yellow_text));
             }
             holder.dateView.setText(dateFormat.format(itemValue.getStartDate()) + ":");
             holder.eventView.setText(itemValue.getTitle());

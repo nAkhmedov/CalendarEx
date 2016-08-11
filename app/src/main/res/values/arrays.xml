@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="alarm_sound">
-        <item>Indonesia anthem</item>
+        <item>@string/anthem_name</item>
     </string-array>
 
     <string-array name="alarm_sound_values">
@@ -9,9 +9,9 @@
     </string-array>
 
     <string-array name="alarm_repeat_arrays">
-        <item>Does not repeat</item>
-        <item>Every day</item>
-        <item>Every month</item>
-        <item>Every year</item>
+        <item>@string/doesnt_repeat</item>
+        <item>@string/every_day</item>
+        <item>@string/every_month</item>
+        <item>@string/every_year</item>
     </string-array>
 </resources>

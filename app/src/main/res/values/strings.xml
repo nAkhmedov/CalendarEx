@@ -20,4 +20,11 @@
     <string name="sound">Sound</string>
     <string name="none">None</string>
     <string name="dismiss">Dismiss</string>
+    <string name="share">Share</string>
+    <string name="share_via">Share via</string>
+    <string name="anthem_name">Indonesia Raya</string>
+    <string name="doesnt_repeat">Does not repeat</string>
+    <string name="every_day">Every day</string>
+    <string name="every_month">Every month</string>
+    <string name="every_year">Every year</string>
 </resources>

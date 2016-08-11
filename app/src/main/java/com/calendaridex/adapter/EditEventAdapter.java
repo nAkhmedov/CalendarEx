@@ -151,8 +151,8 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                             String newTitle = input.getText().toString().trim();
                             String alarmTime = selectedTime[0];
                             if (newTitle.equals(event.getTitle()) &&
-                                    (alarmTime == null && event.getAlarmTime() == null) ||
-                                    (alarmTime != null && alarmTime.equals(event.getAlarmTime())) ) {
+                                    ((alarmTime == null && event.getAlarmTime() == null) ||
+                                            (alarmTime != null && alarmTime.equals(event.getAlarmTime()))) ) {
                                 alertDialog.dismiss();
                                 return;
                             }

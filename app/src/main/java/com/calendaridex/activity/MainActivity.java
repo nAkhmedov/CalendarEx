@@ -241,6 +241,15 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 startActivity(intent);
                 break;
             }
+            case R.id.share: {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                String shareText = getString(R.string.app_name) + "\n" + ContextConstants.APP_SHARE_URL;
+                sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                sendIntent.setType("text/plain");
+                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_via)));
+                break;
+            }
         }
         return true;
     }

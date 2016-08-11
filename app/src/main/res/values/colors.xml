@@ -6,6 +6,7 @@
     <!--<color name="colorAccent">#FF4081</color>-->
     <color name="white">#FFFFFF</color>
     <color name="yellow">#efd43f</color>
+    <color name="yellow_text">#ffb900</color>
     <color name="black">#000000</color>
     <color name="red">#f24141</color>
 </resources>

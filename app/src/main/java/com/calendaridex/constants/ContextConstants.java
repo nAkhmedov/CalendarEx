@@ -31,4 +31,5 @@ public class ContextConstants {
 
     public static final Locale currentCountry = Malaysia;
     public static final String PACKAGE_NAME = ApplicationLoader.getAppContext().getPackageName();
+    public static final String APP_SHARE_URL = "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
 }
