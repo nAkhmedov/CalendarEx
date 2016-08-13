@@ -59,7 +59,15 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         final Event event = eventList.get(position);
-        holder.eventTitle.setText(dateFormat.format(event.getStartDate()) + ": " + event.getTitle());
+        StringBuilder builder = new StringBuilder(1000);
+        builder.append(dateFormat.format(event.getStartDate()));
+        if (event.getAlarmTime() != null) {
+            builder.append(" ")
+                    .append(event.getAlarmTime());
+        }
+        builder.append(": ")
+                .append(event.getTitle());
+        holder.eventTitle.setText(builder.toString());
     }
 
     @Override
@@ -68,7 +76,7 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
     }
 
     public void swapData(List<Event> eventList) {
-        this.eventList = eventList;
+        EditEventAdapter.eventList = eventList;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -130,6 +138,7 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
             final EditText input = (EditText) customView.findViewById(R.id.event_name);
             final CheckBox checkBoxView = (CheckBox) customView.findViewById(R.id.set_alarm);
             final Spinner spinner = (Spinner) customView.findViewById(R.id.spinner);
+            spinner.setSelection(event.getAlarmRepeatPosition());
 
             checkBoxView.setChecked(event.getAlarmTime() != null);
             input.setText(event.getTitle());
@@ -150,16 +159,17 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                         public void onClick(View v) {
                             String newTitle = input.getText().toString().trim();
                             String alarmTime = selectedTime[0];
-                            if (newTitle.equals(event.getTitle()) &&
+                            if (newTitle.equals(event.getTitle()) && spinner.getSelectedItemPosition() == event.getAlarmRepeatPosition() &&
                                     ((alarmTime == null && event.getAlarmTime() == null) ||
                                             (alarmTime != null && alarmTime.equals(event.getAlarmTime()))) ) {
                                 alertDialog.dismiss();
                                 return;
                             }
                             event.setTitle(newTitle);
+                            event.setAlarmRepeatPosition(spinner.getSelectedItemPosition());
                             if (alarmTime != null) {
                                 event.setAlarmTime(alarmTime);
-                                addAlarm(event, spinner.getSelectedItemPosition());
+                                addAlarm(event);
                             } else {
                                 dismissAlarm(event);
                                 event.setAlarmTime(null);
@@ -223,14 +233,14 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
         }
     }
 
-    private void addAlarm(Event userEvent, int repeatPosition) {
+    private void addAlarm(Event userEvent) {
         Intent intent = new Intent(mActivity, AlarmReceiver.class);
         intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) mActivity.getSystemService(Context.ALARM_SERVICE);
         Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
         //0-doesn't repeat, 1-every day, 2-every month, 3-every year
-        switch (repeatPosition) {
+        switch (userEvent.getAlarmRepeatPosition()) {
             case 0: {
                 am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
                 break;

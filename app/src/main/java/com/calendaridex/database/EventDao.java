@@ -29,6 +29,7 @@ public class EventDao extends AbstractDao<Event, Long> {
         public final static Property EndDate = new Property(3, java.util.Date.class, "endDate", false, "end_date");
         public final static Property AdminEvent = new Property(4, boolean.class, "adminEvent", false, "admin_event");
         public final static Property AlarmTime = new Property(5, String.class, "alarmTime", false, "alarm_time");
+        public final static Property AlarmRepeatPosition = new Property(6, int.class, "alarmRepeatPosition", false, "alarm_repeat_position");
     };
 
 
@@ -49,7 +50,8 @@ public class EventDao extends AbstractDao<Event, Long> {
                 "'start_date' INTEGER," + // 2: startDate
                 "'end_date' INTEGER," + // 3: endDate
                 "'admin_event' INTEGER NOT NULL ," + // 4: adminEvent
-                "'alarm_time' TEXT);"); // 5: alarmTime
+                "'alarm_time' TEXT," + // 5: alarmTime
+                "'alarm_repeat_position' INTEGER NOT NULL );"); // 6: alarmRepeatPosition
     }
 
     /** Drops the underlying database table. */
@@ -88,6 +90,7 @@ public class EventDao extends AbstractDao<Event, Long> {
         if (alarmTime != null) {
             stmt.bindString(6, alarmTime);
         }
+        stmt.bindLong(7, entity.getAlarmRepeatPosition());
     }
 
     /** @inheritdoc */
@@ -105,7 +108,8 @@ public class EventDao extends AbstractDao<Event, Long> {
             cursor.isNull(offset + 2) ? null : new java.util.Date(cursor.getLong(offset + 2)), // startDate
             cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)), // endDate
             cursor.getShort(offset + 4) != 0, // adminEvent
-            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5) // alarmTime
+            cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5), // alarmTime
+            cursor.getInt(offset + 6) // alarmRepeatPosition
         );
         return entity;
     }
@@ -119,6 +123,7 @@ public class EventDao extends AbstractDao<Event, Long> {
         entity.setEndDate(cursor.isNull(offset + 3) ? null : new java.util.Date(cursor.getLong(offset + 3)));
         entity.setAdminEvent(cursor.getShort(offset + 4) != 0);
         entity.setAlarmTime(cursor.isNull(offset + 5) ? null : cursor.getString(offset + 5));
+        entity.setAlarmRepeatPosition(cursor.getInt(offset + 6));
      }
     
     /** @inheritdoc */

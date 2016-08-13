@@ -116,7 +116,6 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
 
     public static volatile DispatchQueue globalQueue = new DispatchQueue("MainActivityBgThread");
     private MenuItem editEventMenu;
-    private RelativeLayout contentView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +137,6 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             }
         });
 
-        contentView = (RelativeLayout) findViewById(R.id.top_panel);
         calendarView = (MaterialCalendarView) findViewById(R.id.calendar_view);
         RecyclerView eventsRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_events);
         final TextView monthTitleView = (TextView) findViewById(R.id.top_month_title);
@@ -541,11 +539,12 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 userEvent.setAdminEvent(false);
                 userEvent.setTitle(eventData);
                 userEvent.setAlarmTime(alarmTime);
+                userEvent.setAlarmRepeatPosition(repeatPosition);
                 ApplicationLoader.getApplication(MainActivity.this)
                         .getDaoSession()
                         .getEventDao()
                         .insert(userEvent);
-                addAlarm(userEvent, repeatPosition);
+                addAlarm(userEvent);
                 allEvents.add(userEvent);
                 editEventMenu.setVisible(true);
                 updateAllWidgets();
@@ -560,7 +559,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         });
     }
 
-    private void addAlarm(Event userEvent, int repeatPosition) {
+    private void addAlarm(Event userEvent) {
         if (userEvent.getAlarmTime() == null) {
             return;
         }
@@ -571,7 +570,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
         //0-doesn't repeat, 1-every day, 2-every month, 3-every year
-        switch (repeatPosition) {
+        switch (userEvent.getAlarmRepeatPosition()) {
             case 0: {
                 am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
                 break;

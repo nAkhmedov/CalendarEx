@@ -15,6 +15,7 @@ public class Event {
     private java.util.Date endDate;
     private boolean adminEvent;
     private String alarmTime;
+    private int alarmRepeatPosition;
 
     // KEEP FIELDS - put your custom fields here
     // KEEP FIELDS END
@@ -26,13 +27,14 @@ public class Event {
         this.id = id;
     }
 
-    public Event(Long id, String title, java.util.Date startDate, java.util.Date endDate, boolean adminEvent, String alarmTime) {
+    public Event(Long id, String title, java.util.Date startDate, java.util.Date endDate, boolean adminEvent, String alarmTime, int alarmRepeatPosition) {
         this.id = id;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
         this.adminEvent = adminEvent;
         this.alarmTime = alarmTime;
+        this.alarmRepeatPosition = alarmRepeatPosition;
     }
 
     public Long getId() {
@@ -81,6 +83,14 @@ public class Event {
 
     public void setAlarmTime(String alarmTime) {
         this.alarmTime = alarmTime;
+    }
+
+    public int getAlarmRepeatPosition() {
+        return alarmRepeatPosition;
+    }
+
+    public void setAlarmRepeatPosition(int alarmRepeatPosition) {
+        this.alarmRepeatPosition = alarmRepeatPosition;
     }
 
     // KEEP METHODS - put your custom methods here

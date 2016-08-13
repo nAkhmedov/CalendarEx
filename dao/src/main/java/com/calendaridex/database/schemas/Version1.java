@@ -33,6 +33,9 @@ public class Version1 extends SchemaVersion {
                 .notNull();
         event.addStringProperty("alarmTime")
                 .columnName("alarm_time");
+        event.addIntProperty("alarmRepeatPosition")
+                .columnName("alarm_repeat_position")
+        .notNull();
         /* Relations */
 
     }
