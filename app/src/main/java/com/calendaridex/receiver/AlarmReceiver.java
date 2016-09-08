@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.calendaridex.activity.LockScreenActivity;
+import com.calendaridex.activity.SettingsActivity;
 import com.calendaridex.constants.ExtraNames;
 import com.calendaridex.service.AlarmService;
 
@@ -18,6 +20,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             Intent alarmServiceIntent = new Intent(context, AlarmService.class);
             alarmServiceIntent.putExtra(ExtraNames.ALARM_MESSAGE, intent.getExtras().getString(ExtraNames.ALARM_MESSAGE));
             context.startService(alarmServiceIntent);
+//            Intent lockScreenIntent = new Intent(context, SettingsActivity.class);
+//            context.startActivity(lockScreenIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }

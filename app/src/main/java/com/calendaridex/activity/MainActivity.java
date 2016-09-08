@@ -583,15 +583,15 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 break;
             }
             case 1: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
                 break;
             }
             case 2: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
                 break;
             }
             case 3: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
                 break;
             }
         }
