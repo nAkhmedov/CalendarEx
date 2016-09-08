@@ -1,0 +1,81 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/top_panel">
+
+        <ImageView
+            android:id="@+id/left_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/left_icon"/>
+
+        <TextView
+            android:id="@+id/top_month_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_centerInParent="true"
+            android:textSize="22sp"/>
+
+        <ImageView
+            android:id="@+id/right_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/right_icon"/>
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_below="@+id/top_panel"
+        android:layout_above="@+id/adMobView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/calendar_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:mcv_weekDayTextAppearance="@android:style/Theme.Holo.Light"
+                app:mcv_arrowColor="@color/black"
+                app:mcv_headerTextAppearance="@android:style/TextAppearance.Large"
+                app:mcv_dateTextAppearance="@android:style/TextAppearance.Medium"
+                app:mcv_selectionColor="@color/selected_color"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_events"
+                android:layout_below="@+id/calendar_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"/>
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/adMobView"
+        android:layout_marginTop="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

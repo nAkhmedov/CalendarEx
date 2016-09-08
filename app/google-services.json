@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "22598265687",
+    "firebase_url": "https://admob-app-id-6626906082.firebaseio.com",
+    "project_id": "admob-app-id-6626906082",
+    "storage_bucket": "admob-app-id-6626906082.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22598265687:android:a382f2027ee5a20f",
+        "android_client_info": {
+          "package_name": "com.calendaridex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "22598265687-tcrio83b2opuaqfrr3s41iadqf0skpq1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVzQPBw8gN9rHOzK48DPHnO7ZX5djs_1g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

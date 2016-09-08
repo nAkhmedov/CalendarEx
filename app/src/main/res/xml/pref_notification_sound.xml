@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+    android:key="notification_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:auto="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/alarm_sound">
+
+        <com.calendaridex.components.CustomRingtonePreference
+            android:key="alarm_sound"
+            android:title="@string/sound"
+            android:summary="Cutting through"
+            auto:ringtoneType="notification"
+            auto:showSilent="false"
+            auto:showDefault="false"
+            auto:customRingtones="@array/alarm_sound_values"
+            auto:customRingtoneTitles="@array/alarm_sound"
+            android:defaultValue="anthem_id"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>
