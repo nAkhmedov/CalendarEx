@@ -8,18 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.PixelFormat;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.calendaridex.R;
@@ -32,6 +27,8 @@ import com.calendaridex.constants.NotificationConstants;
  * Created by Navruz on 10.08.2016.
  */
 public class AlarmService extends Service {
+
+    private PowerManager.WakeLock wakeLock;
 
     @Nullable
     @Override
@@ -50,26 +47,24 @@ public class AlarmService extends Service {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(dismissAlarmReceiver);
+        if (wakeLock != null) {
+            if (wakeLock.isHeld()) {
+                wakeLock.release();
+            }
+            wakeLock = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = AlarmService.this;
 
-        WindowManager mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        if (wakeLock == null) {
+            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "gcmWakeLock");
+        }
 
-        View mView = LayoutInflater.from(context).inflate(R.layout.launcher_layout, null);
-
-        WindowManager.LayoutParams mLayoutParams = new WindowManager.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT, 0, 0,
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
-                PixelFormat.RGBA_8888);
-
-        mWindowManager.addView(mView, mLayoutParams);
+        wakeLock.acquire();
 
         try {
 

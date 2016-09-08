@@ -371,6 +371,12 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                         public void onResponse(Call<JsonArray> call, Response<JsonArray> response) {
                             JsonArray eventsArray = response.body();
                             try {
+                                EventDao eventDao = ApplicationLoader.getApplication(MainActivity.this)
+                                        .getDaoSession()
+                                        .getEventDao();
+                                if (eventDao.loadAll().size() != 0) {
+                                    eventDao.deleteAll();
+                                }
                                 parseJsonArray(eventsArray);
                                 SharedPreferences.Editor editor = sharedPref.edit();
                                 editor.putLong("last_update_time", new Date().getTime());
