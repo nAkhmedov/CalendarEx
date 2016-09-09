@@ -88,8 +88,11 @@ public class AndroidUtil {
         long alarmTime = alarmCalendar.getTimeInMillis();
         if (alarmTime < currentTime) {
             alarmCalendar.add(Calendar.DAY_OF_MONTH, 1);
-            userEvent.setStartDate(alarmCalendar.getTime());
-            userEvent.setEndDate(alarmCalendar.getTime());
+            Calendar customCalendar = Calendar.getInstance();
+            customCalendar.setTime(userEvent.getStartDate());
+            customCalendar.add(Calendar.DAY_OF_MONTH, 1);
+            userEvent.setStartDate(customCalendar.getTime());
+            userEvent.setEndDate(customCalendar.getTime());
             ApplicationLoader.getApplication(ApplicationLoader.getAppContext())
                     .getDaoSession()
                     .getEventDao()
