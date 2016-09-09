@@ -20,7 +20,6 @@ public class AlarmReceiver extends BroadcastReceiver {
             alarmServiceIntent.putExtra(ExtraNames.ALARM_MESSAGE, intent.getExtras().getString(ExtraNames.ALARM_MESSAGE));
             context.startService(alarmServiceIntent);
             Intent lockScreenIntent = new Intent(context, LockScreenActivity.class);
-            lockScreenIntent.putExtra(ExtraNames.ALARM_MESSAGE, intent.getExtras().getString(ExtraNames.ALARM_MESSAGE));
             lockScreenIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(lockScreenIntent);
         } catch (Exception e) {

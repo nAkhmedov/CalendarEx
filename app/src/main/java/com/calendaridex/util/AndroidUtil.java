@@ -77,13 +77,11 @@ public class AndroidUtil {
     }
 
     public static Calendar getAlarmTime(Event userEvent) {
-        Calendar alarmCalendar = Calendar.getInstance();
-        alarmCalendar.setTime(userEvent.getStartDate());
-        alarmCalendar.set(Calendar.MILLISECOND, 0);
-        alarmCalendar.set(Calendar.SECOND, 0);
         String[] hours = userEvent.getAlarmTime().split(":");
         int hour = Integer.parseInt(hours[0]);
         int minute = Integer.parseInt(hours[1]);
+        Calendar alarmCalendar = Calendar.getInstance();
+        alarmCalendar.setTimeInMillis(System.currentTimeMillis());
         alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
         alarmCalendar.set(Calendar.MINUTE, minute);
         long currentTime = Calendar.getInstance().getTimeInMillis();

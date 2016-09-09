@@ -374,8 +374,11 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                                 EventDao eventDao = ApplicationLoader.getApplication(MainActivity.this)
                                         .getDaoSession()
                                         .getEventDao();
-                                if (eventDao.loadAll().size() != 0) {
-                                    eventDao.deleteAll();
+                                List<Event> entities = eventDao.queryBuilder()
+                                        .where(EventDao.Properties.AdminEvent.eq(true))
+                                        .list();
+                                if (entities.size() != 0) {
+                                    eventDao.deleteInTx(entities);
                                 }
                                 parseJsonArray(eventsArray);
                                 SharedPreferences.Editor editor = sharedPref.edit();
@@ -589,15 +592,15 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 break;
             }
             case 1: {
-                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
                 break;
             }
             case 2: {
-                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
                 break;
             }
             case 3: {
-                am.setRepeating(AlarmManager.ELAPSED_REALTIME, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
                 break;
             }
         }

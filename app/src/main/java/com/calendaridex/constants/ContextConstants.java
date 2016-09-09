@@ -10,7 +10,7 @@ import java.util.Locale;
 public class ContextConstants {
 
     public static final String APP_URL = "http://app.aksanetworks.com/www/api/";
-    public static final int UPDATE_PERIOD = 3;
+    public static final int UPDATE_PERIOD = 2;
 
 //    public static final Locale Indonesia = new Locale("in", "ID");
 //    public static final Locale France = new Locale("fr", "FR");
