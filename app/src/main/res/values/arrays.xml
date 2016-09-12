@@ -10,8 +10,8 @@
 
     <string-array name="alarm_repeat_arrays">
         <item>@string/doesnt_repeat</item>
-        <item>@string/every_day</item>
-        <item>@string/every_month</item>
-        <item>@string/every_year</item>
+        <!--<item>@string/every_day</item>-->
+        <!--<item>@string/every_month</item>-->
+        <!--<item>@string/every_year</item>-->
     </string-array>
 </resources>
