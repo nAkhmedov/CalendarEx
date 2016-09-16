@@ -16,10 +16,9 @@ public class SettingsActivity extends BaseCEActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_layout);
+        setActionBarColor();
         getFragmentManager().beginTransaction()
                 .replace(R.id.content, new NotificationSoundFragment(), TAG_FRAGMENT_NOTIFICATION)
                 .commit();
     }
-
-
 }

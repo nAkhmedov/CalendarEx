@@ -24,6 +24,7 @@ public class EditEventActivity extends BaseCEActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_event);
 
+        setActionBarColor();
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.editEventList);
         recyclerView.setLayoutManager(linearLayoutManager);

@@ -15,8 +15,8 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -157,6 +157,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 .setFirstDayOfWeek(calendar.getFirstDayOfWeek())
                 .setCalendarDisplayMode(CalendarMode.MONTHS)
                 .commit();
+        setAppThemColor();
         calendarView.setTopbarVisible(false);
         calendarView.setCurrentDate(currentMonthDate);
         calendarView.setWeekDayTextAppearance(R.style.WhiteColorStyle);
@@ -204,6 +205,12 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         notifyEventsUser();
     }
 
+    private void setAppThemColor() {
+        int themeColor = prefs.getInt("app_theme_color", ContextCompat.getColor(MainActivity.this, R.color.colorPrimary));
+        calendarView.setBackgroundColor(themeColor);
+        setActionBarColor();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -236,7 +243,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             }
             case R.id.settings: {
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, ContextConstants.SETTINGS_REQUEST_CODE);
                 break;
             }
             case R.id.share: {
@@ -584,25 +591,26 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         // In reality, you would want to have a static variable for the request code instead of eventId
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
         //0-doesn't repeat, 1-every day, 2-every month, 3-every year
         switch (userEvent.getAlarmRepeatPosition()) {
             case 0: {
+                Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
                 am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
                 break;
             }
             case 1: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                Calendar alarmCalendar = AndroidUtil.getRepeatAlarmTime(userEvent);
+                am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
                 break;
             }
-            case 2: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
-                break;
-            }
-            case 3: {
-                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
-                break;
-            }
+//            case 2: {
+//                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+//                break;
+//            }
+//            case 3: {
+//                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+//                break;
+//            }
         }
     }
 
@@ -720,6 +728,8 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             if (resultCode == RESULT_OK) {
                 updateMainUiForUserEvent();
             }
+        } else if (requestCode == ContextConstants.SETTINGS_REQUEST_CODE) {
+            setAppThemColor();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

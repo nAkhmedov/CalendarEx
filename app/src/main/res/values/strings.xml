@@ -27,4 +27,5 @@
     <string name="every_day">Setiap Hari</string>
     <string name="every_month">Setiap Bulan</string>
     <string name="every_year">Setiap Tahun</string>
+    <string name="color">Color</string>
 </resources>

@@ -19,5 +19,12 @@
             auto:customRingtoneTitles="@array/alarm_sound"
             android:defaultValue="anthem_id"/>
 
+        <com.rarepebble.colorpicker.ColorPreference
+            android:key="app_theme_color"
+            android:title="@string/color"
+            auto:colorpicker_showAlpha="false"
+            auto:colorpicker_showHex="false"
+            auto:colorpicker_defaultColor="@color/colorPrimary"/>
+
     </PreferenceCategory>
 </PreferenceScreen>

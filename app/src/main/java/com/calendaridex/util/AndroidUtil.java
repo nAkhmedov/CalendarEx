@@ -104,4 +104,15 @@ public class AndroidUtil {
 
         return alarmCalendar;
     }
+
+    public static Calendar getRepeatAlarmTime(Event userEvent) {
+        Calendar alarmCalendar = Calendar.getInstance();
+        String[] hours = userEvent.getAlarmTime().split(":");
+        int hour = Integer.parseInt(hours[0]);
+        int minute = Integer.parseInt(hours[1]);
+        alarmCalendar.set(Calendar.HOUR_OF_DAY, hour);
+        alarmCalendar.set(Calendar.MINUTE, minute);
+
+        return alarmCalendar;
+    }
 }

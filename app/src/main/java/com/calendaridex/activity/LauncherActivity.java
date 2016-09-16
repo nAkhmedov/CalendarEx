@@ -2,6 +2,7 @@ package com.calendaridex.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -19,15 +20,16 @@ public class LauncherActivity extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher_layout);
+        final ImageView imageView = (ImageView) findViewById(R.id.launch_img);
         new Thread(new Runnable() {
             @Override
             public void run() {
+                final Bitmap bitmap = ImageUtil.decodeSampledBitmapFromResource(
+                        getResources(), R.drawable.calendar_icon, 100, 100);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        final ImageView imageView = (ImageView) findViewById(R.id.launch_img);
-                        imageView.setImageBitmap(ImageUtil.decodeSampledBitmapFromResource(
-                                getResources(), R.drawable.calendar_icon, 100, 100));
+                        imageView.setImageBitmap(bitmap);
                     }
                 });
             }
@@ -39,7 +41,7 @@ public class LauncherActivity extends Activity {
                 startActivity(new Intent(LauncherActivity.this, MainActivity.class));
                 finish();
             }
-        }, 150);
+        }, 200);
 
     }
 }
