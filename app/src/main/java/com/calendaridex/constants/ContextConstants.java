@@ -33,4 +33,5 @@ public class ContextConstants {
     public static final String PACKAGE_NAME = ApplicationLoader.getAppContext().getPackageName();
     public static final String APP_SHARE_URL = "https://play.google.com/store/apps/details?id=" + PACKAGE_NAME;
     public static final int SETTINGS_REQUEST_CODE = 101;
+    public static final int ACTIVE_REPEAT_COUNT = 1;
 }

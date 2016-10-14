@@ -8,7 +8,7 @@
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
     <string name="delete_header">Hapus Event?</string>
-    <string name="add_event">Menambahkan Event</string>
+    <string name="add_event">Tambah Event</string>
     <string name="edit_event">Ubah Event</string>
     <!-- AdMob ad unit IDs -->
     <string name="preference_file_key">com.sms.sendsms.PREFERENCE_FILE_KEY</string>
@@ -27,5 +27,6 @@
     <string name="every_day">Setiap Hari</string>
     <string name="every_month">Setiap Bulan</string>
     <string name="every_year">Setiap Tahun</string>
-    <string name="color">Color</string>
+    <string name="color">Warna Kalender</string>
+    <string name="rate">Mohon Berikan Rating</string>
 </resources>

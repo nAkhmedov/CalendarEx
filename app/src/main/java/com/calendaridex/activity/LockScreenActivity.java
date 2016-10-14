@@ -32,6 +32,7 @@ public class LockScreenActivity extends BaseCEActivity {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.lock_sceen);
+        setActionBarColor();
 
         ((TextView) findViewById(R.id.lock_date)).setText(dateFormat.format(AndroidUtil.getCurrentDate()));
         Calendar cal = Calendar.getInstance();

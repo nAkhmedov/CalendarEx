@@ -41,6 +41,7 @@ public class NotificationSoundFragment extends PreferenceFragment {
                         int colorValue = sharedPreferences.getInt(key, 0);
 //                        String hexColor = String.format("#%06X", (0xFFFFFF & colorValue));
                         ((BaseCEActivity) getActivity()).setActionBarColor();
+                        ((BaseCEActivity) getActivity()).updateAllWidgets();
                         break;
                     }
                 }

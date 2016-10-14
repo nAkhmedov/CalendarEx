@@ -6,12 +6,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -52,7 +51,6 @@ import com.calendaridex.util.HolidayEventDecorator;
 import com.calendaridex.util.UserAlarmEventDecorator;
 import com.calendaridex.util.UserEventDecorator;
 import com.calendaridex.util.WeekendsDecorator;
-import com.calendaridex.widget.CalendarWidget;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -183,7 +181,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 } else {
                     requestNewInterstitial();
                 }
-                showEventsByDate(currentMonthDate);
+                showEventsByMonthly(currentMonthDate);
                 selectedDate = null;
             }
         });
@@ -255,8 +253,41 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                 startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.share_via)));
                 break;
             }
+
+            case R.id.rate_app: {
+                final String appPackageName = getPackageName();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                } catch (android.content.ActivityNotFoundException anfe) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                }
+
+            }
         }
         return true;
+    }
+
+    private void showEventsByMonthly(final Date date) {
+        globalQueue.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                Pair<Date, Date> range = AndroidUtil.getMonthlyDateRange(date);
+                allEvents = ApplicationLoader.getApplication(MainActivity.this)
+                        .getDaoSession()
+                        .getEventDao()
+                        .queryBuilder()
+                        .where(EventDao.Properties.StartDate.between(range.first, range.second))
+                        .orderAsc(EventDao.Properties.StartDate)
+                        .build()
+                        .list();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.swapData(allEvents);
+                    }
+                });
+            }
+        });
     }
 
     private void showEventsByDate(final Date date) {
@@ -268,13 +299,18 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                         .getDaoSession()
                         .getEventDao()
                         .queryBuilder();
-                allEvents = qb.whereOr(qb.and(EventDao.Properties.StartDate.le(range.first),
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                qb.whereOr(
+                        qb.and(EventDao.Properties.StartDate.le(range.first),
                         EventDao.Properties.EndDate.ge(range.first)),
                         qb.and(EventDao.Properties.StartDate.le(range.second),
                                 EventDao.Properties.EndDate.ge(range.second)))
-                        .orderAsc(EventDao.Properties.StartDate)
-                        .build()
-                        .list();
+                        .orderAsc(EventDao.Properties.StartDate);
+
+                allEvents = qb.build().list();
+                //new WhereCondition.StringCondition("strftime('%d', date(start_date, 'unixepoch')) = '12'"))
+                //strftime('%d', 'start_date')=strftime('%d', '" + date +"')"
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -325,11 +361,19 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
     }
 
     private void initializeAdMob(JsonObject adMobObject) {
-        MobileAds.initialize(getApplicationContext(), adMobObject.get("app_id").getAsString());
+        if (adMobObject.has("app_id")) {
+            MobileAds.initialize(getApplicationContext(), adMobObject.get("app_id").getAsString());
+        }
 
-        boolean isBannerAdsEnabled = adMobObject.get("banner_status").getAsString().equals("1");
-        boolean isIntertialAdsEnabled = adMobObject.get("inertial_status").getAsString().equals("1");
-        if (isBannerAdsEnabled) {
+        boolean isBannerAdsEnabled = false;
+        if (adMobObject.has("banner_status")) {
+            isBannerAdsEnabled = adMobObject.get("banner_status").getAsString().equals("1");
+        }
+        boolean isIntertialAdsEnabled = false;
+        if (adMobObject.has("inertial_status")) {
+            isIntertialAdsEnabled = adMobObject.get("inertial_status").getAsString().equals("1");
+        }
+        if (isBannerAdsEnabled && adMobObject.has("banner_ad_id")) {
             AdRequest adRequest = new AdRequest.Builder()
                     .build();
             mAdView = new AdView(MainActivity.this);
@@ -339,7 +383,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             mAdView.loadAd(adRequest);
         }
 
-        if (isIntertialAdsEnabled) {
+        if (isIntertialAdsEnabled && adMobObject.has("inertial_ads_id")) {
             mInterstitialAd.setAdUnitId(adMobObject.get("inertial_ads_id").getAsString());
             requestNewInterstitial();
         }
@@ -569,13 +613,31 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                         .insert(userEvent);
                 addAlarm(userEvent);
                 allEvents.add(userEvent);
-                editEventMenu.setVisible(true);
+                if (repeatPosition == ContextConstants.ACTIVE_REPEAT_COUNT) {
+                    for (int i = 1; i < 6; i++) {
+                        final Event userYearlyEvent = new Event();
+                        userYearlyEvent.setStartDate(AndroidUtil.getIncrementYear(i));
+                        userYearlyEvent.setEndDate(AndroidUtil.getIncrementYear(i));
+                        userYearlyEvent.setAdminEvent(false);
+                        userYearlyEvent.setTitle(eventData);
+                        userYearlyEvent.setAlarmTime(alarmTime);
+                        userYearlyEvent.setAlarmRepeatPosition(repeatPosition);
+                        ApplicationLoader.getApplication(MainActivity.this)
+                                .getDaoSession()
+                                .getEventDao()
+                                .insert(userYearlyEvent);
+                        addAlarm(userYearlyEvent);
+                        allEvents.add(userYearlyEvent);
+                    }
+                }
                 updateAllWidgets();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        editEventMenu.setVisible(true);
                         mAdapter.swapData(allEvents);
-                        renderUserEvent(userEvent);
+//                        renderUserEvent(userEvent);
+                        renderUserEvents();
                     }
                 });
             }
@@ -591,26 +653,25 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         // In reality, you would want to have a static variable for the request code instead of eventId
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
         //0-doesn't repeat, 1-every day, 2-every month, 3-every year
         switch (userEvent.getAlarmRepeatPosition()) {
             case 0: {
-                Calendar alarmCalendar = AndroidUtil.getAlarmTime(userEvent);
                 am.set(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), pendingIntent);
                 break;
             }
             case 1: {
-                Calendar alarmCalendar = AndroidUtil.getRepeatAlarmTime(userEvent);
-                am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
                 break;
             }
-//            case 2: {
-//                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
-//                break;
-//            }
-//            case 3: {
-//                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
-//                break;
-//            }
+            case 2: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                break;
+            }
+            case 3: {
+                am.setRepeating(AlarmManager.RTC_WAKEUP, alarmCalendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                break;
+            }
         }
     }
 
@@ -712,16 +773,6 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
         editor.apply();
     }
 
-    private void updateAllWidgets() {
-        AppWidgetManager man = AppWidgetManager.getInstance(MainActivity.this);
-        int[] ids = man.getAppWidgetIds(
-                new ComponentName(MainActivity.this, CalendarWidget.class));
-        Intent intent = new Intent(this,CalendarWidget.class);
-        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,ids);
-        sendBroadcast(intent);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_EVENT_CODE) {
@@ -730,6 +781,7 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             }
         } else if (requestCode == ContextConstants.SETTINGS_REQUEST_CODE) {
             setAppThemColor();
+            updateAllWidgets();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

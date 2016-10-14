@@ -9,4 +9,7 @@
     <color name="yellow_text">#ffb900</color>
     <color name="black">#000000</color>
     <color name="red">#f24141</color>
+
+    <color name="steelBlue">#4f81bc</color>
+    <color name="lightBlue">#99badd</color>
 </resources>

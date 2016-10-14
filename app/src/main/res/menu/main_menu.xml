@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/add_event_group"
-        android:title="@string/add_event"
+        android:title="@string/create_event"
         android:icon="@mipmap/ic_content_add"
-        app:showAsAction="always">
+        app:showAsAction="ifRoom">
         <menu>
             <item android:id="@+id/add_event"
-                android:title="@string/add_event"
+                android:title="@string/create_event"
                 android:icon="@mipmap/add_event"/>
 
             <item android:id="@+id/edit_event"
@@ -26,5 +26,9 @@
           android:actionProviderClass=
               "android.widget.ShareActionProvider"
           android:title="@string/share"
+          app:showAsAction="never"/>
+
+    <item android:id="@+id/rate_app"
+          android:title="@string/rate"
           app:showAsAction="never"/>
 </menu>

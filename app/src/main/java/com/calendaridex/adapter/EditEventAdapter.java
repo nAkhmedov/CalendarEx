@@ -166,7 +166,26 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                                 return;
                             }
                             event.setTitle(newTitle);
-                            event.setAlarmRepeatPosition(spinner.getSelectedItemPosition());
+                            if (spinner.getSelectedItemPosition() != event.getAlarmRepeatPosition()) {
+                                event.setAlarmRepeatPosition(spinner.getSelectedItemPosition());
+                                if (event.getAlarmRepeatPosition() == ContextConstants.ACTIVE_REPEAT_COUNT) {
+                                    for (int i = 1; i < 6; i++) {
+                                        final Event userYearlyEvent = new Event();
+                                        userYearlyEvent.setStartDate(AndroidUtil.getIncrementYear(i));
+                                        userYearlyEvent.setEndDate(AndroidUtil.getIncrementYear(i));
+                                        userYearlyEvent.setAdminEvent(false);
+                                        userYearlyEvent.setTitle(event.getTitle());
+                                        userYearlyEvent.setAlarmTime(event.getAlarmTime());
+                                        userYearlyEvent.setAlarmRepeatPosition(event.getAlarmRepeatPosition());
+                                        ApplicationLoader.getApplication(mActivity)
+                                                .getDaoSession()
+                                                .getEventDao()
+                                                .insert(userYearlyEvent);
+                                        addAlarm(userYearlyEvent);
+                                        eventList.add(userYearlyEvent);
+                                    }
+                                }
+                            }
                             if (alarmTime != null) {
                                 event.setAlarmTime(alarmTime);
                                 addAlarm(event);
@@ -178,7 +197,8 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
                                     .getDaoSession()
                                     .getEventDao()
                                     .update(event);
-                            notifyItemChanged(adapterPosition);
+
+                            notifyDataSetChanged();
                             alertDialog.dismiss();
                         }
                     }
@@ -241,6 +261,11 @@ public class EditEventAdapter extends RecyclerView.Adapter<EditEventAdapter.View
     }
 
     private void addAlarm(Event userEvent) {
+
+        if (userEvent.getAlarmTime() == null) {
+            return;
+        }
+
         Intent intent = new Intent(mActivity, AlarmReceiver.class);
         intent.putExtra(ExtraNames.ALARM_MESSAGE, userEvent.getTitle());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(mActivity, userEvent.getId().intValue(), intent, PendingIntent.FLAG_UPDATE_CURRENT);

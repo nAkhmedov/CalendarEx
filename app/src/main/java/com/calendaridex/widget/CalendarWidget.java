@@ -5,8 +5,11 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -28,6 +31,7 @@ public class CalendarWidget extends AppWidgetProvider {
 
     private SimpleDateFormat monthDateFormat = new SimpleDateFormat("d MMMM", ContextConstants.currentCountry);
     private static int uniqueIndex = 0;
+
     @Override
     public void onEnabled(Context context) {
         super.onEnabled(context);
@@ -88,6 +92,10 @@ public class CalendarWidget extends AppWidgetProvider {
                     R.layout.widget_layout);
 
             widget.setTextViewText(R.id.month_view, monthDateFormat.format(new Date()));
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            int themeColor = prefs.getInt("app_theme_color", ContextCompat.getColor(context, R.color.colorPrimary));
+            widget.setInt(R.id.month_view, "setBackgroundColor", themeColor);
+
 //        widget.setTextViewText(R.id.date_view, dateFormat.format(new Date()));
             widget.setRemoteAdapter(R.id.eventList, svcIntent);
             widget.setEmptyView(R.id.eventList, R.id.empty_view);
