@@ -272,14 +272,20 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
             @Override
             public void run() {
                 Pair<Date, Date> range = AndroidUtil.getMonthlyDateRange(date);
-                allEvents = ApplicationLoader.getApplication(MainActivity.this)
+                QueryBuilder<Event> qb = ApplicationLoader.getApplication(MainActivity.this)
                         .getDaoSession()
                         .getEventDao()
-                        .queryBuilder()
-                        .where(EventDao.Properties.StartDate.between(range.first, range.second))
-                        .orderAsc(EventDao.Properties.StartDate)
-                        .build()
-                        .list();
+                        .queryBuilder();
+
+                        qb.whereOr(EventDao.Properties.StartDate.between(range.first, range.second),
+                                EventDao.Properties.EndDate.between(range.first, range.second),
+                                qb.and(EventDao.Properties.StartDate.le(range.first),
+                                        EventDao.Properties.EndDate.ge(range.first)),
+                                qb.and(EventDao.Properties.StartDate.le(range.second),
+                                        EventDao.Properties.EndDate.ge(range.second)))
+                        .orderAsc(EventDao.Properties.StartDate);
+
+                allEvents = qb.build().list();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -299,18 +305,14 @@ public class MainActivity extends BaseCEActivity implements View.OnClickListener
                         .getDaoSession()
                         .getEventDao()
                         .queryBuilder();
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
                 qb.whereOr(
                         qb.and(EventDao.Properties.StartDate.le(range.first),
-                        EventDao.Properties.EndDate.ge(range.first)),
+                                EventDao.Properties.EndDate.ge(range.first)),
                         qb.and(EventDao.Properties.StartDate.le(range.second),
                                 EventDao.Properties.EndDate.ge(range.second)))
                         .orderAsc(EventDao.Properties.StartDate);
 
                 allEvents = qb.build().list();
-                //new WhereCondition.StringCondition("strftime('%d', date(start_date, 'unixepoch')) = '12'"))
-                //strftime('%d', 'start_date')=strftime('%d', '" + date +"')"
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
